@@ -58,40 +58,134 @@
         </div>
     </nav>
 
+
     <!--=====================
         Page Sections
     ======================-->
     <main class="container py-4">
         <section id="home-page" class="page active">
-            <h1>Home</h1>
+            <h1>Welcome to Full-Stack App</h1>
+            <p>A static prototype before backend integration. Simulates:</p>
+            <ul>
+                <li>Email registration + fake verification</li>
+                <li>Login with JWT-like token simulation</li>
+                <li>Role-based UI (Admin/User)</li>
+                <li>CRUD for Employees, Departments, Requests</li>
+            </ul>
+            <div style="background-color: lightblue; margin: auto; padding: 1%">
+            <p>⚠️<b>Note:</b> All data is stored in <span style="color:rgba(255, 0, 0, 0.89);">localStorage</span>. Referesh to reset.</p>
+            </div>
+            <br><button type="submit" class="btn btn-primary">Get Started➜</button>
         </section>
 
         <section id="register-page" class="page">
-            <h1>Register</h1>
+            <h1>Register Account</h1>
+
+            <form id="register-form">
+                
+                <label>First Name</label>
+                <input type="text" id="reg-firstname" placeholder="Juan" class="form-control mb-2">
+                <label>Last Name</label>
+                <input type="text" id="reg-lastname" placeholder="Dela Cruz" class="form-control mb-2">
+                <label>Email</label>
+                <input type="email" id="reg-email" placeholder="JuanDelaCruz@email.com" class="form-control mb-2">
+                <label>Password</label>
+                <input type="password" id="log-password" placeholder="Minimum of 6 characters" class="form-control mb-2">
+                
+                <button type="submit" class="btn btn-success">Register</button>
+                <button href="#" type="submit" class="btn btn-secondary">Cancel</button>
+            </form>
         </section>
 
         <section id="verify-email-page" class="page">
-            <h1>Verify Email</h1>
+            <h1>Verify Your Email</h1>
+            <p>For demo purposes, click below to simulate verification: </p>
+            <button type="submit" class="btn btn-success">✅Simulate Email Verfication</button>
+            <button type="submit" class="btn btn-outline-secondary">Go to Login</button>
         </section>
 
         <section id="login-page" class="page">
             <h1>Login</h1>
+
+            <form id="login-form">
+                <label><b>Email</b></label>
+                <input type="email" id="log-email" placeholder="abcd@email.com" class="form-control mb-2">
+                <label><b>Password</b></label>
+                <input type="password" id="log-password" placeholder="*********" class="form-control mb-2">
+
+                <button type="submit" class="btn btn-primary">Login</button>
+                <button type="submit" class="btn btn-outline-secondary">Cancel</button>
+            </form>
         </section>
 
         <section id="profile-page" class="page">
-            <h1>Profile</h1>
+            <h1>My Profile</h1>
+            
+            <div class="card">
+                <div class="card-body">
+                    <h3>Admin User</h3>
+                    <p><b>Email: </b></p>
+                    <p><b>Role: </b></p>
+
+                    <button type="submit" class="btn btn-outline-primary">Edit Profile</button>
+            
+                </div>
+            </div>
         </section>
 
         <section id="employees-page" class="page">
-            <h1>Employees (admin)</h1>
+            <h1>Employees</h1>
+            
+            <div class="card">
+                <div class="card-header">
+                  <h6>Add/Edit Employee</h6>
+                </div>
+                <div class="card-body">
+                    <label>Employee ID</label>
+                    <input type="text" id="employeeID" class="form-control mb-2">
+                    <label>User Email</label>
+                    <input type="text" id="user-email" class="form-control mb-2">
+                    <label>Position</label>
+                    <input type="position" id="position" class="form-control mb-2">
+                    <label>Department</label>
+                    <input type="department" id="department" class="form-control mb-2">
+                    <label>Hire Date</label>
+                    <input type="date" id="hire-date" class="form-control mb-2">
+                    <button type="submit" class="btn btn-primary">Save</button>
+                    <button type="submit" class="btn btn-secondary">Cancel</button>
+                </div>
+
+            </div>
         </section>
 
         <section id="departments-page" class="page">
-            <h1>Departments (admin)</h1>
+            <h1>Departments</h1>
+
         </section>
 
-        <section id="accounts-page" class="page">
-            <h1>Accounts (admin)</h1>
+        <section id="accounts-page" class="page active">
+            <h1>Accounts</h1>
+            
+            <div class="card">
+                <div class="card-header">
+                    <h6>Add/Edit Account</h6>
+                </div>
+                <div class="card-body">
+                    <label>First Name</label>
+                    <input type="text" id="firstname" class="form-control mb-2">
+                    <label>Last Name</label>
+                    <input type="text" id="lastname" class="form-control mb-2">
+                    <label>Email</label>
+                    <input type="email" id="email" class="form-control mb-2">
+                    <label>Password</label>
+                    <input type="password" id="password" class="form-control mb-2">
+                    <label>Role</label>
+                    <input type="role" id="role" class="form-control mb-2">
+
+                    <button type="submit" class="btn btn-primary">Save</button>
+                    <button type="submit" class="btn btn-secondary">Cancel</button>
+                </div>
+            </div>
         </section>
 
         <section id="request-page" class="page">
