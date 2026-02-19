@@ -37,7 +37,7 @@
                     <a class="nav-link dropdown-toggle" href="#" data-bs-toggle="dropdown">Username</a>
                     <ul class="dropdown-menu dropdown-menu-end">
                         <li><a class="dropdown-item" href="#/profile">Profile</a></li>
-                        <li><a class="dropdown-item" href="#/request">My Request</a></li>
+                        <li><a class="dropdown-item" href="#/requests">My Request</a></li>
                         <li><a class="dropdown-item" href="#/logout">Logout</a></li>
                     </ul>
                 </li>
@@ -102,8 +102,9 @@
         <section id="verify-email-page" class="page">
             <h1>Verify Your Email</h1>
             <p>For demo purposes, click below to simulate verification: </p>
-            <button type="button" class="btn btn-success">✅Simulate Email Verfication</button>
-            <button type="button" class="btn btn-outline-secondary" onclick="window.location.href='#/login'">Go to Login</button>
+            <p id="verify-msg"></p>
+            <button id="verify-btn" class="btn btn-success">✅Simulate Email Verfication</button>
+            <button class="btn btn-outline-secondary" onclick="window.location.href='#/login'">Go to Login</button>
         </section>
 
         <section id="login-page" class="page">
@@ -111,12 +112,12 @@
 
             <form id="login-form">
                 <label><b>Email</b></label>
-                <input type="email" id="log-email" class="form-control mb-2">
+                <input type="email" id="login-email" class="form-control mb-2">
                 <label><b>Password</b></label>
-                <input type="password" id="log-password" class="form-control mb-2">
+                <input type="password" id="login-password" class="form-control mb-2">
 
-                <button type="submit" class="btn btn-primary" onclick="window.location.href='#/profile'">Login</button>
-                <button type="submit" class="btn btn-outline-secondary" onclick="window.location.href='#/home'">Cancel</button>
+                <button type="submit" class="btn btn-primary">Login</button>
+                <button class="btn btn-outline-secondary" onclick="window.location.href='#/home'">Cancel</button>
             </form>
         </section>
 
@@ -190,7 +191,7 @@
             </div>
         </section>
 
-        <section id="request-page" class="page">
+        <section id="requests-page" class="page">
             <h1>Requests</h1>
         </section>
     </main>
