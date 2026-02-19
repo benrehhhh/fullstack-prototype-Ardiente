@@ -1,13 +1,11 @@
 // ==============================
 // Phase 2: Client- Side Routing
 // ==============================
-
 let currentUser = null;
 
 function navigateTo(hash){
     window.location.hash=hash;
 }
-
 function handleRouting(){
     let hash = window.location.hash || "#/";
 
@@ -36,8 +34,8 @@ function handleRouting(){
         case '#/accounts':
             document.getElementById('accounts-page').classList.add('active');
             break;    
-        case '#/request':
-            document.getElementById('request-page').classList.add('active');
+        case '#/requests':
+            document.getElementById('requests-page').classList.add('active');
             break;
         default:
             document.getElementById('home-page').classList.add('active');
@@ -55,27 +53,20 @@ function handleRouting(){
     if (currentUser && currentUser.role !== "admin" && adminRoutes.includes(hash)) {
         navigateTo("#/");
     }
+
+    if(hash === "#/verify-email")
+    {
+        renderVerifyEmail();
+    }
 }
 
     window.addEventListener("hashchange", handleRouting);
 
-    if(!window.location.hash) {
-        window.location.hash = "#/";
-    }
 
-    handleRouting();
 
 // ==============================
 // Phase 3: Authentication System
 // ==============================
-
-window.db = {
-    accounts: JSON.parse(localStorage.getItem("db_accounts")) || []
-};
-
-function saveToStorage(){
-    localStorage.setItem("db_accounts", JSON.stringify(window.db.accounts));
-}
 
 
 // =================
@@ -86,7 +77,7 @@ document.getElementById("register-form").addEventListener("submit", function (e)
 
     const first = document.getElementById("reg-firstname").value.trim();
     const last = document.getElementById("reg-lastname").value.trim();
-    const email = document.getElementById("reg-email").value.trim();
+    const email = document.getElementById("reg-email").value.trim().toLowerCase();
     const password = document.getElementById("reg-password").value.trim();
 
     if(password.length <6)
@@ -110,6 +101,7 @@ document.getElementById("register-form").addEventListener("submit", function (e)
             role: "user"
     });
 
+    saveToStorage();
     localStorage.setItem("unverified_email", email);
     navigateTo("#/verify-email");
 });
@@ -117,20 +109,21 @@ document.getElementById("register-form").addEventListener("submit", function (e)
 // =====================
 //  EMAIL VERIFICATION
 // =====================
-
-document.getElementById("simulate-verfication").addEventListener("click", function(){
+function renderVerifyEmail()
+{
     const email = localStorage.getItem("unverified_email");
-    if (!email)
-    {
-        alert("No unverified email found.");
-        return;
-    }
+    document.getElementById("verify-msg").textContent = "Verification sent to " + email;
+}
 
-    const targetAccount = window.db.accounts.find(acc => acc.email === email);
-    if (targetAccount){
-        targetAccount.verified = true;
+document.getElementById("verify-btn").addEventListener("click", function(){
+    const email = localStorage.getItem("unverified_email");
+    const acc = window.db.accounts.find(a => a.email === email);
+
+    if (acc)
+    {
+        acc.verified = true;
         saveToStorage();
-        alert("Email Verified! Please Login.");
+        localStorage.removeItem("unverified_email");
         navigateTo("#/login");
     }
 });
@@ -142,25 +135,19 @@ document.getElementById("simulate-verfication").addEventListener("click", functi
 document.getElementById("login-form").addEventListener("submit", function(e){
     e.preventDefault();
 
-    const email = document.getElementById("log-email").value.trim();
-    const password = document.getElementById("log-password").value.trim();
+    const email = document.getElementById("login-email").value.trim().toLowerCase();
+    const password = document.getElementById("login-password").value.trim();
 
-    const account = window.db.accounts.find(acc => acc.email === email && acc.password === password);
+    const acc = window.db.accounts.find(a => a.email === email && a.password === password);
 
-    if(!account)
+    if(!acc || acc.verified !== true)
     {
-        alert("Email or password incorrect.");
-        return;
-    }
-
-    if(!account.verified)
-    {
-        alert("Email not verified. Please verify first. ");
+        alert("Invalid Credentials or Email Not Verified.");
         return;
     }
 
     localStorage.setItem("auth_token", email);
-    setAuthState(true, account);
+    setAuthState(true, acc);
     navigateTo("#/profile");
 });
 
@@ -175,7 +162,9 @@ function setAuthState(isAuth, user = null){
     {
         document.body.classList.add("authenticated");
         document.body.classList.remove("not-authenticated");
-        if(user.role === "admin"){
+        document.body.classList.remove("is-admin");
+        if(isAuth && user.role === "admin")
+        {
             document.body.classList.add("is-admin");
         }
     }
@@ -186,27 +175,66 @@ function setAuthState(isAuth, user = null){
     }
 }
 
-window.addEventListener("load", function(){
-    const email = localStorage.getItem("auth_token");
-    if(email)
-    {
-        const account = window.db.accounts.find(acc => acc.email === email);
-        if(account){
-            setAuthState(true, account);
-        }
-    }
-
-});
 
 // ================
 //     Logout
 // ================
 
-document.querySelector("a[href='#/logout']").forEach(btn => {
-    btn.addEventListener("click", function(e){
-        e.preventDefault();
+document.querySelector("a[href='#/logout']").addEventListener("click", function(){
         localStorage.removeItem("auth_token");
         setAuthState(false);
         navigateTo("#/");
     });
-});
+
+// =============================================
+//  Phase 4: Data Persistence with localStorage
+// =============================================
+const STORAGE_KEY = "ipt_demo_v1";
+
+function loadFromStorage() {
+    let saved = localStorage.getItem(STORAGE_KEY);
+    try 
+    {
+        if(saved)
+        {
+            window.db = JSON.parse(saved);
+            return;
+        }
+    }
+    catch (e)
+    {
+        console.warn("Storage invalid, resetting...");
+    }
+
+    window.db = {
+        accounts: [
+            {
+                firstName: "Admin",
+                lastName: "User",
+                email: "admin@example.com",
+                password: "Password123!",
+                verified: true,
+                role: "admin"
+            }
+        ],
+        departments: [
+            {name: "Engineering", description: ""},
+            {name: "HR", description: ""},
+        ],
+        requests: [],
+        employees: []
+    };
+}
+
+function saveToStorage()
+{
+    localStorage.setItem(STORAGE_KEY, JSON.stringify(window.db));
+}
+
+loadFromStorage();
+
+if(!window.location.hash) {
+    window.location.hash = "#/";
+}
+
+handleRouting();
