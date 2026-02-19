@@ -13,23 +13,36 @@ function handleRouting(){
 
     document.querySelectorAll(".page").forEach(p => p.classList.remove("active"));
 
-    const routeMap = {
-        "#/": "home-page",
-        "#/register": "register-page",
-        "#/verify-email": "verify-email-page",
-        "#/login": "login-page",
-        "#/profile": "profile-page",
-        "#/employees": "employees-page",
-        "#/departments": "departments-page",
-        "#/accounts": "accounts-page",
-        "#/request": "request-page",
-    };
-
-    const pageId = routeMap[hash];
-
-    if (pageId) {
-        document.getElementById(pageId).classList.add("active");
+    switch(hash)
+    {
+        case '#/login':
+            document.getElementById('login-page').classList.add('active');
+            break;
+        case '#/register':
+            document.getElementById('register-page').classList.add('active');
+            break;
+        case '#/verify-email':
+            document.getElementById("verify-email-page").classList.add("active");
+            break;
+        case '#/profile':
+            document.getElementById('profile-page').classList.add('active');
+            break;
+        case '#/employees':
+            document.getElementById('employees-page').classList.add('active');
+            break;
+        case '#/departments':
+            document.getElementById('departments-page').classList.add('active');
+            break;
+        case '#/accounts':
+            document.getElementById('accounts-page').classList.add('active');
+            break;    
+        case '#/request':
+            document.getElementById('request-page').classList.add('active');
+            break;
+        default:
+            document.getElementById('home-page').classList.add('active');
     }
+
 
     // Redirects non-user away
     const protectedRoutes = ["#/profile", "#/requests"];
@@ -38,10 +51,11 @@ function handleRouting(){
     }
 
     // Admin Pages
-    const adminRoutes = ["#/employees", "#/accoutns", "#/departments"];
+    const adminRoutes = ["#/employees", "#/accounts", "#/departments"];
     if (currentUser && currentUser.role !== "admin" && adminRoutes.includes(hash)) {
         navigateTo("#/");
     }
+}
 
     window.addEventListener("hashchange", handleRouting);
 
@@ -50,4 +64,38 @@ function handleRouting(){
     }
 
     handleRouting();
+
+// ==============================
+// Phase 3: Authentication System
+// ==============================
+
+window.db = {
+    accounts: []
 }
+
+document.getElementById("register-form").addEventListener("submit", function (e){
+    e.preventDefault();
+
+    const first = document.getElementById("reg-firstname").value.trim();
+    const last = document.getElementById("reg-lastname").value.trim();
+    const email = document.getElementById("reg-email").value.trim();
+    const password = document.getElementById("reg-password").value.trim();
+
+    const existing = window.db.accounts.find(acc => acc.email === email);
+    if(existing){
+        alert("Email already exists.");
+        return;
+    }
+
+    window.db.accounts.push({
+            firstName: first,
+            lastName: last,
+            email: email,
+            password: password,
+            verified: false,
+            role: "user"
+    });
+
+    localStorage.setItem("unverified_email", email);
+    navigateTo("#/verify-email");
+});
