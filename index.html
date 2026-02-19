@@ -10,7 +10,7 @@
 
 <body class="not-authenticated">
     <nav class="navbar navbar-expand-lg navbar-dark bg-dark px-3">
-        <a class="navbar-brand" href="#">Full-Stack App Vin Henry S. Ardiente</a>
+        <a class="navbar-brand" href="#">Full-Stack App (Vin Henry S. Ardiente)</a>
 
         <button class="navbar-toggler" type="button" data-bs-toggle="collapse" data-bs-target="#navMenu">
             <span class="navbar-toggler-icon"></span>
@@ -72,10 +72,10 @@
                 <li>Role-based UI (Admin/User)</li>
                 <li>CRUD for Employees, Departments, Requests</li>
             </ul>
-            <div style="background-color: lightblue; margin: auto; padding: 1%">
-            <p>⚠️<b>Note:</b> All data is stored in <span style="color:rgba(255, 0, 0, 0.89);">localStorage</span>. Referesh to reset.</p>
+            <div class="warning">
+            <p>⚠️<b>Note:</b> All data is stored in <span style="color:#ea3838">localStorage</span>. Referesh to reset.</p>
             </div>
-            <br><button type="submit" class="btn btn-primary">Get Started➜</button>
+            <br><a class="btn btn-primary" href="#/login">Get Started➜</a>
         </section>
 
         <section id="register-page" class="page">
@@ -84,24 +84,26 @@
             <form id="register-form">
                 
                 <label>First Name</label>
-                <input type="text" id="reg-firstname" placeholder="Juan" class="form-control mb-2">
+                <input type="text" id="reg-firstname" class="form-control mb-2">
                 <label>Last Name</label>
-                <input type="text" id="reg-lastname" placeholder="Dela Cruz" class="form-control mb-2">
+                <input type="text" id="reg-lastname" class="form-control mb-2">
                 <label>Email</label>
-                <input type="email" id="reg-email" placeholder="JuanDelaCruz@email.com" class="form-control mb-2">
+                <input type="email" id="reg-email"  class="form-control mb-2">
                 <label>Password</label>
-                <input type="password" id="log-password" placeholder="Minimum of 6 characters" class="form-control mb-2">
+                <input type="password" id="reg-password" class="form-control mb-2">
+                <label>Confirm Password</label>
+                <input type="password" id="reg-confirm-password" class="form-control mb-2">
                 
                 <button type="submit" class="btn btn-success">Register</button>
-                <button href="#" type="submit" class="btn btn-secondary">Cancel</button>
+                <button type="button" class="btn btn-secondary" onclick="window.location.href='#/home'">Cancel</button>
             </form>
         </section>
 
         <section id="verify-email-page" class="page">
             <h1>Verify Your Email</h1>
             <p>For demo purposes, click below to simulate verification: </p>
-            <button type="submit" class="btn btn-success">✅Simulate Email Verfication</button>
-            <button type="submit" class="btn btn-outline-secondary">Go to Login</button>
+            <button type="button" class="btn btn-success">✅Simulate Email Verfication</button>
+            <button type="button" class="btn btn-outline-secondary" onclick="window.location.href='#/login'">Go to Login</button>
         </section>
 
         <section id="login-page" class="page">
@@ -109,12 +111,12 @@
 
             <form id="login-form">
                 <label><b>Email</b></label>
-                <input type="email" id="log-email" placeholder="abcd@email.com" class="form-control mb-2">
+                <input type="email" id="log-email" class="form-control mb-2">
                 <label><b>Password</b></label>
-                <input type="password" id="log-password" placeholder="*********" class="form-control mb-2">
+                <input type="password" id="log-password" class="form-control mb-2">
 
-                <button type="submit" class="btn btn-primary">Login</button>
-                <button type="submit" class="btn btn-outline-secondary">Cancel</button>
+                <button type="submit" class="btn btn-primary" onclick="window.location.href='#/profile'">Login</button>
+                <button type="submit" class="btn btn-outline-secondary" onclick="window.location.href='#/home'">Cancel</button>
             </form>
         </section>
 
@@ -163,8 +165,7 @@
 
         </section>
 
-        <!--LAST TOUCHED BEFORE SLEEPING-->
-        <section id="accounts-page" class="page active">
+        <section id="accounts-page" class="page">
             <h1>Accounts</h1>
             
             <div class="card">
