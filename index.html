@@ -104,7 +104,7 @@
             <p>For demo purposes, click below to simulate verification: </p>
             <p id="verify-msg"></p>
             <button id="verify-btn" class="btn btn-success">✅Simulate Email Verfication</button>
-            <button class="btn btn-outline-secondary" onclick="window.location.href='#/login'">Go to Login</button>
+            <a class="btn btn-outline-secondary" href="#/login">Go to Login</a>
         </section>
 
         <section id="login-page" class="page">
@@ -117,7 +117,7 @@
                 <input type="password" id="login-password" class="form-control mb-2">
 
                 <button type="submit" class="btn btn-primary">Login</button>
-                <button class="btn btn-outline-secondary" onclick="window.location.href='#/home'">Cancel</button>
+                <a class="btn btn-outline-secondary" href="#/">Cancel</a>
             </form>
         </section>
 
@@ -126,11 +126,11 @@
             
             <div class="card">
                 <div class="card-body">
-                    <h3>Admin User</h3>
-                    <p><b>Email: </b></p>
-                    <p><b>Role: </b></p>
+                    <h3 id="profile-name"></h3>
+                    <p><b>Email: </b><span id="profile-email"></span></p>
+                    <p><b>Role: </b><span id="profile-role"></span></p>
 
-                    <button type="submit" class="btn btn-outline-primary">Edit Profile</button>
+                    <button id="edit-profile" class="btn btn-outline-primary">Edit Profile</button>
             
                 </div>
             </div>

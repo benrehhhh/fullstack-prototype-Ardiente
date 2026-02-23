@@ -58,9 +58,12 @@ function handleRouting(){
     {
         renderVerifyEmail();
     }
-}
 
-    window.addEventListener("hashchange", handleRouting);
+    if(hash === "#/profile")
+    {
+        renderProfile();
+    }
+}
 
 
 
@@ -129,6 +132,20 @@ document.getElementById("verify-btn").addEventListener("click", function(){
 });
 
 
+// ===================
+//  PROFILE PAGE
+// ===================
+function renderProfile()
+{
+    document.getElementById("profile-name").innerText = currentUser.firstName + " " + currentUser.lastName;
+    document.getElementById("profile-email").innerText = currentUser.email;
+    document.getElementById("profile-role").innerText = currentUser.role;
+
+    document.getElementById("edit-profile").addEventListener("click", function(){
+        alert("Edit profile coming soon.");
+    });
+}
+
 // ==================
 //   LOGIN FORM
 // ==================
@@ -140,7 +157,13 @@ document.getElementById("login-form").addEventListener("submit", function(e){
 
     const acc = window.db.accounts.find(a => a.email === email && a.password === password);
 
-    if(!acc || acc.verified !== true)
+    if(!acc)
+    {
+        alert("Account Does not Exist. Please try again.");
+        return;
+    }
+
+    if(acc.verified !== true)
     {
         alert("Invalid Credentials or Email Not Verified.");
         return;
@@ -189,7 +212,7 @@ document.querySelector("a[href='#/logout']").addEventListener("click", function(
 // =============================================
 //  Phase 4: Data Persistence with localStorage
 // =============================================
-const STORAGE_KEY = "ipt_demo_v1";
+const STORAGE_KEY = "ipt_demo_v1"
 
 function loadFromStorage() {
     let saved = localStorage.getItem(STORAGE_KEY);
@@ -232,6 +255,8 @@ function saveToStorage()
 }
 
 loadFromStorage();
+
+window.addEventListener("hashchange", handleRouting);
 
 if(!window.location.hash) {
     window.location.hash = "#/";
