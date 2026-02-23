@@ -101,7 +101,7 @@ document.getElementById("register-form").addEventListener("submit", function (e)
             email: email,
             password: password,
             verified: false,
-            role: "user"
+            role: "User"
     });
 
     saveToStorage();
