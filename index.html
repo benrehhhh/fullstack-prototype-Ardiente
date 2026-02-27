@@ -34,7 +34,7 @@
                 If logged in
                 ===========-->
                 <li class="nav-item dropdown role-logged-in">
-                    <a class="nav-link dropdown-toggle" href="#" data-bs-toggle="dropdown">User</a>
+                    <a class="nav-link dropdown-toggle" href="#" data-bs-toggle="dropdown"></a>
                     <ul class="dropdown-menu dropdown-menu-end">
                         <li><a class="dropdown-item" href="#/profile">Profile</a></li>
                         <li><a class="dropdown-item" href="#/requests">My Request</a></li>
@@ -84,15 +84,15 @@
             <form id="register-form">
                 
                 <label>First Name</label>
-                <input type="text" id="reg-firstname" class="form-control mb-2">
+                <input type="text" id="reg-firstname" class="form-control mb-2" required>
                 <label>Last Name</label>
-                <input type="text" id="reg-lastname" class="form-control mb-2">
+                <input type="text" id="reg-lastname" class="form-control mb-2" required>
                 <label>Email</label>
-                <input type="email" id="reg-email"  class="form-control mb-2">
+                <input type="email" id="reg-email"  class="form-control mb-2" required>
                 <label>Password</label>
-                <input type="password" id="reg-password" class="form-control mb-2">
+                <input type="password" id="reg-password" class="form-control mb-2" required>
                 <label>Confirm Password</label>
-                <input type="password" id="reg-confirm-password" class="form-control mb-2">
+                <input type="password" id="reg-confirm-password" class="form-control mb-2" required>
                 
                 <button type="submit" class="btn btn-success">Register</button>
                 <button type="button" class="btn btn-secondary" onclick="window.location.href='#/home'">Cancel</button>
@@ -112,9 +112,9 @@
 
             <form id="login-form">
                 <label><b>Email</b></label>
-                <input type="email" id="login-email" class="form-control mb-2">
+                <input type="email" id="login-email" class="form-control mb-2" required>
                 <label><b>Password</b></label>
-                <input type="password" id="login-password" class="form-control mb-2">
+                <input type="password" id="login-password" class="form-control mb-2" required>
 
                 <button type="submit" class="btn btn-primary">Login</button>
                 <a class="btn btn-outline-secondary" href="#/">Cancel</a>
@@ -139,8 +139,21 @@
         <section id="employees-page" class="page">
             <div class="d-flex justify-content-between align-items-center mb-3">
                 <h1>Employees</h1>
-                <a class="btn btn-success">+ Add Employee</a>
+                <a id="add-employee-btn" class="btn btn-success">+ Add Employee</a>
             </div>
+
+            <table class="table" id="employees-table">
+                <thead>
+                    <tr>
+                        <th>ID</th>
+                        <th>Name</th>
+                        <th>Position</th>
+                        <th>Dept</th>
+                        <th>Actions</th>
+                    </tr>
+                </thead>
+                <tbody></tbody>
+            </table>
 
             <div class="card">
                 <div class="card-header">
@@ -149,19 +162,23 @@
                 <div class="card-body">
                     <div class="card-body">
                         <label>Employee ID</label>
-                        <input type="text" id="employeeID" class="form-control mb-2">
+                        <input id="emp-id" class="form-control mb-2">
                         <label>User Email</label>
-                        <input type="text" id="user-email" class="form-control mb-2">
+                        <input type="text" id="emp-email" class="form-control mb-2">
                         <label>Position</label>
-                        <input type="position" id="position" class="form-control mb-2">
+                        <select id="emp-position" class="form-control mb-2">
+                            <option value="CEO">CEO</option>
+                            <option value="Manager">Manager</option>
+                            <option value="Developer">Developer</option>
+                        </select>
                         <label>Department</label>
-                        <input type="department" id="department" class="form-control mb-2">
+                        <select id="emp-department" class="form-control mb-2"></select>
                         <label>Hire Date</label>
                         <input type="date" id="hire-date" class="form-control mb-2">
                     </div>
 
-                    <button type="submit" class="btn btn-primary">Save</button>
-                    <button type="submit" class="btn btn-secondary">Cancel</button>
+                    <button id="emp-save-btn" type="submit" class="btn btn-primary">Save</button>
+                    <button type="submit" class="btn btn-secondary" onclick="navigateTo('#/employees')">Cancel</button>
                 </div>
             </div>
         </section>
@@ -169,16 +186,49 @@
         <section id="departments-page" class="page">
             <div class="d-flex justify-content-between align-items-center mb-3">
                 <h1>Departments</h1>
-                <a class="btn btn-success">+ Add Department</a>
+                <a id="add-department-btn" class="btn btn-success">+ Add Department</a>
             </div>
 
+            <div id="department-form" style="display:none";>
+                <h4 id="dept-form-title">Add Department</h4>
+
+                <input id="dept-name" class="form-control mb-2" placeholder="Department Name">
+                <input id="dept-desc" class="form-control mb-2" placeholder="Description">
+
+                <button class="btn btn-success" id="save-department-btn">Save</button>
+
+            </div>
+
+            <table class="table" id="departments-table">
+                <thead>
+                    <tr>
+                        <th>Name</th>
+                        <th>Description</th>
+                        <th>Actions</th>
+                    </tr>
+                </thead>
+                <tbody></tbody>
+            </table>
         </section>
 
         <section id="accounts-page" class="page">
             <div class="d-flex justify-content-between align-items-center mb-3">
                 <h1>Accounts</h1>
-                <a class="btn btn-success">+ Add Account</a>
+                <a type="button" id="add-account-btn" class="btn btn-success">+ Add Account</a>
             </div>
+
+            <table class="table" id="accounts-table">
+                <thead>
+                    <tr>
+                        <th>Name</th>
+                        <th>Email</th>
+                        <th>Role</th>
+                        <th>Verified</th>
+                        <th>Actions</th>
+                    </tr>
+                </thead>
+                <tbody></tbody>
+            </table>
 
             <div class="card">
                 <div class="card-header">
@@ -197,8 +247,8 @@
                         <input type="password" id="password" class="form-control mb-2">
                         <label>Role</label>
                         <select id="role" class="form-control mb-2">
-                            <option>User</option>
-                            <option>Admin</option>
+                            <option value="user">User</option>
+                            <option value="admin">Admin</option>
                         </select>
                         <input type="checkbox" id="checkbox">
                         <label>Verified</label>
@@ -213,11 +263,33 @@
         <section id="requests-page" class="page">
             <div class="d-flex justify-content-between align-items-center mb-3">
                 <h1>My Requests</h1>
-                <a class="btn btn-success">+ New Request</a>
+                <button type="button" class="btn btn-success" data-bs-toggle="modal" data-bs-target="#req-form">+ New Request</button>
             </div>
 
             <div class="d-flex justify-content-between align-items-end mb-3">
-                <a class="btn btn-success">Create One</a>
+                <a class="btn btn-success" data-bs-toggle="modal" data-bs-target="#req-form">Create One</a>
+            </div>
+
+            <div class="modal fade" id="req-form" tabindex="-1" aria-labelledby="request-form">
+                <div class="modal-dialog">
+                    <div class="modal-content">
+                        <div class="modal-header">
+                            <h1 class="modal-title fs-5" id="request-form">New Request</h1>
+                            <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
+                        </div>
+                        <div class="modal-body">
+                            <label>Type</label>
+                            <input type="text" id="equipment" class="form-control mb-2">
+                            <label>Items</label>
+                            <div class="input-group">
+                                <input type="text" placeholder="Item Name" class="form-control mb-2">
+                                <input type="number" min="1" class="form-control mb-2">
+                            </div>
+
+                            <button type="button" class="btn btn-primary">Submit Request</button>
+                        </div>
+                    </div>
+                </div>
             </div>
         </section>
     </main>
