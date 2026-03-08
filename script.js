@@ -50,38 +50,28 @@ function handleRouting(){
 
     // Admin Pages
     const adminRoutes = ["#/employees", "#/accounts", "#/departments"];
-    if (currentUser && currentUser.role !== "admin" && adminRoutes.includes(hash)) {
+    if (currentUser && currentUser.role.toLowerCase() !== "admin" && adminRoutes.includes(hash)) {
         navigateTo("#/");
     }
 
-    if(hash === "#/verify-email")
+    const routes = 
     {
-        renderVerifyEmail();
-    }
-
-    if(hash === "#/profile")
-    {
-        renderProfile();
-    }
-
-    if(hash === "#/accounts")
-    {
-       renderAccountList();
-    }
-
-    if(hash === "#/departments")
-    {
-        renderDepartmentTable();
-    }
-
-    if(hash === "#/employees")
-    {
-        loadDepartmentOptions();
+        "#/verify-email": renderVerifyEmail,
+        "#/profile": renderProfile,
+        "#/accounts": renderAccountList,
+        "#/departments": renderDepartmentTable,
+        "#/employees": () => {
+        getDepartmentOptions();
         renderEmployeesTable();
+        },
+        "#/requests": renderRequestsTable
     }
 
+    if(routes[hash])
+    {
+        routes[hash]();
+    }
 }
-
 
 
 // ==============================
@@ -121,6 +111,7 @@ document.getElementById("register-form").addEventListener("submit", function (e)
             role: "user"
     });
 
+    showToast("Registration successful! Please verify your email.", "success");
     saveToStorage();
     localStorage.setItem("unverified_email", email);
     navigateTo("#/verify-email");
@@ -132,7 +123,7 @@ document.getElementById("register-form").addEventListener("submit", function (e)
 function renderVerifyEmail()
 {
     const email = localStorage.getItem("unverified_email");
-    document.getElementById("verify-msg").textContent = "Verification sent to " + email;
+    document.getElementById("verify-msg").textContent = "✅ Verification sent to " + email;
 }
 
 document.getElementById("verify-btn").addEventListener("click", function(){
@@ -158,9 +149,9 @@ function renderProfile()
     document.getElementById("profile-email").innerText = currentUser.email;
     document.getElementById("profile-role").innerText = currentUser.role;
 
-    document.getElementById("edit-profile").addEventListener("click", function(){
+    document.getElementById("edit-profile").onclick = function(){
         alert("Edit profile coming soon.");
-    });
+    };
 }
 
 // ==================
@@ -186,8 +177,11 @@ document.getElementById("login-form").addEventListener("submit", function(e){
         return;
     }
 
+    showToast("Login successful!", "success");
     localStorage.setItem("auth_token", email);
+    currentUser = acc;
     setAuthState(true, acc);
+    updateNavbarUser();
     navigateTo("#/profile");
 });
 
@@ -224,6 +218,7 @@ document.querySelector("a[href='#/logout']").addEventListener("click", function(
         localStorage.removeItem("auth_token");
         setAuthState(false);
         navigateTo("#/");
+        showToast("Logged out successfully!", "info");
     });
 
 // =============================================
@@ -232,7 +227,7 @@ document.querySelector("a[href='#/logout']").addEventListener("click", function(
 const STORAGE_KEY = "ipt_demo_v1";
 
 function loadFromStorage() {
-    const data = localStorage.getItem(STORAGE_KEY);
+    const data = localStorage.getItem("db");
     try
     {
         if(data)
@@ -263,7 +258,7 @@ function loadFromStorage() {
             {id: 1, name: "Engineering", description: ""},
             {id: 2, name: "HR", description: ""},
         ],
-        requests: [],
+        requests: JSON.parse(localStorage.getItem("db_requests")) || [],
         employees: JSON.parse(localStorage.getItem("db_employees")) || []
     };
 }
@@ -276,6 +271,17 @@ function renderAccountList()
 {
     const tbody = document.querySelector("#accounts-table tbody");
     tbody.innerHTML = "";
+
+      if(window.db.accounts.length === 0)
+    {
+        tbody.innerHTML = 
+        `<tr>
+            <td colspan="5" class="text-center text-muted">
+            No accounts yet. Click <b>Add Account</b> to create one.
+            </td>
+        </tr>`;
+        return;
+    }
 
     window.db.accounts.forEach((acc, i) => {
 
@@ -295,7 +301,7 @@ function renderAccountList()
     });
 }
 
-    document.getElementById("add-account-btn").addEventListener("click", () => {
+document.getElementById("add-account-btn").addEventListener("click", () => {
     showAccountForm();
 });
 
@@ -303,6 +309,8 @@ function renderAccountList()
 function showAccountForm(mode = "add", acc = null, index = null)
 {
     window.editingAccount = mode === "edit" ? index : null;
+
+    const form = document.getElementById("account-form");
 
     const firstInput = document.getElementById("firstname");
     const lastInput = document.getElementById("lastname");
@@ -330,6 +338,8 @@ function showAccountForm(mode = "add", acc = null, index = null)
         roleSelect.value = acc.role.toLowerCase();
         verifiedCheckbox.checked = acc.verified;
     }
+
+    form.style.display = "block";
 }
 
 document.querySelector("#accounts-page .btn-primary").addEventListener("click", saveAccount);
@@ -349,6 +359,7 @@ function saveAccount()
         alert("Complete all fields");
         return;
     }
+    showToast("Account updated successfully!", "success");
 
 
     if(window.editingAccount === null)
@@ -376,6 +387,13 @@ function saveAccount()
 
     saveToStorage();
     renderAccountList();
+    document.getElementById("account-form").style.display = "none";
+
+}
+
+function hideAccountForm()
+{
+    document.getElementById("account-form").style.display = "none";
 }
 
 function editAccount(index)
@@ -394,7 +412,7 @@ function resetPassword(index)
 
     window.db.accounts[index].password = newPW;
     saveToStorage();
-    alert("Password updated!");
+    showToast("Password updated!", "success");
 }
 
 function deleteAccount(index)
@@ -408,6 +426,8 @@ function deleteAccount(index)
 
     if(!confirm("Are you sure you want to delete this account?"))
         return;
+    showToast("Account deleted successfully!", "success");
+
 
     window.db.accounts.splice(index, 1);
     saveToStorage();
@@ -419,6 +439,17 @@ function renderDepartmentTable()
 {
     const tbody = document.querySelector("#departments-table tbody");
     tbody.innerHTML = "";
+
+    if(window.db.departments.length === 0)
+    {
+        tbody.innerHTML = 
+        `<tr>
+            <td colspan="5" class="text-center text-muted">
+            No departments yet. Click <b>Add Department</b> to create one.
+            </td>
+        </tr>`;
+        return;
+    }
 
     window.db.departments.forEach((dept, i) => {
         tbody.innerHTML += `
@@ -460,6 +491,10 @@ function editDepartment(i)
     document.getElementById("department-form").style.display = "block";
 }
 
+document.getElementById("cancel-department-btn").addEventListener("click", () => {
+    document.getElementById("department-form").style.display = "none";
+    editingDeptIndex = null;
+}); 
 
 document.getElementById("save-department-btn").addEventListener("click", () => {
     const name = document.getElementById("dept-name").value.trim();
@@ -470,6 +505,8 @@ document.getElementById("save-department-btn").addEventListener("click", () => {
         alert("Department name is required.");
         return;
     }
+    showToast("Department added successfully!", "success");
+
 
     if(editingDeptIndex === null)
     {
@@ -487,6 +524,7 @@ document.getElementById("save-department-btn").addEventListener("click", () => {
 
     saveToStorage();
     renderDepartmentTable();
+    getDepartmentOptions();
 
     document.getElementById("department-form").style.display = "none";
 });
@@ -495,15 +533,20 @@ function deleteDepartment(i)
 {
     if(!confirm("Are you sure you want to delete this department?"))
         return;
-    
+    showToast("Department deleted successfully!", "success");
+
     window.db.departments.splice(i, 1);
     saveToStorage();
     renderDepartmentTable();
+    getDepartmentOptions();
 }
 
-function loadDepartmentOptions()
+function getDepartmentOptions()
 {
     const select = document.getElementById("emp-department");
+    if(!select)
+        return;
+
     select.innerHTML = "";
 
     window.db.departments.forEach(dept => {
@@ -514,28 +557,64 @@ function loadDepartmentOptions()
     });
 }
 
+
 function renderEmployeesTable()
 {
-    const tbody = document.querySelector("#employees-table tbody");
+    const tbody = document.querySelector(".employee-list-body");
+    if (!tbody) return;
     tbody.innerHTML = "";
+
+    if(window.db.employees.length === 0)
+    {
+        tbody.innerHTML = 
+        `<tr>
+            <td colspan="5" class="text-center text-muted">
+            No employees yet. Click <b>Add Employee</b> to create one.
+            </td>
+        </tr>`;
+        return;
+    }
 
     window.db.employees.forEach((emp, i) => {
         const dept = window.db.departments.find(d => d.id === emp.deptId);
     
-        const tr = document.createElement("tr");
-        tr.innerHTML = `
-            <td>${emp.employeeId}</td>
-            <td>${emp.name}</td>
-            <td>${emp.position}</td>
-            <td>${dept ? dept.name : "N/A"}</td>
-            <td>
-                <button class="btn btn-sm btn-outline-primary"onclick="editEmployee(${i})">Edit</button>
-                <button class="btn btn-sm btn-outline-danger" onclick="deleteEmployee(${i})">Delete</button>
-            </td>
+        tbody.innerHTML += `
+            <tr>
+                <td>${emp.employeeId}</td>
+                <td>${emp.name}
+                <br>
+                <small class="text-muted">${emp.userEmail}</small>
+                </td>
+                <td>${emp.position}</td>
+                <td>${dept ? dept.name : "N/A"}</td>
+                <td>
+                    <button class="btn btn-sm btn-outline-primary"onclick="editEmployee(${i})">Edit</button>
+                    <button class="btn btn-sm btn-outline-danger" onclick="deleteEmployee(${i})">Delete</button>
+                </td>
+            </tr>
         `;
-        tbody.appendChild(tr);
     });
 }
+document.getElementById("add-employee-btn").addEventListener("click", () => {
+    editingEmpIndex = null;
+    document.getElementById("emp-form-title").textContent = "Add Employee";
+    document.getElementById("emp-save-btn").textContent = "Save Employee";
+    document.getElementById("emp-cancel-btn").onclick = function() {
+        document.getElementById("employee-form").style.display = "none";
+        document.getElementById("emp-save-btn").onclick = addEmployee;
+    } 
+
+    document.getElementById("emp-name").value = "";
+    document.getElementById("emp-email").value = "";
+    document.getElementById("emp-position").selectedIndex = 0;
+    document.getElementById("emp-department").value = "";
+    document.getElementById("hire-date").value = "";
+
+    getDepartmentOptions();
+    document.getElementById("employee-form").style.display = "block";
+    document.getElementById("emp-save-btn").onclick = addEmployee;
+});
+
 
 function addEmployee()
 {
@@ -544,28 +623,29 @@ function addEmployee()
     const position = document.getElementById("emp-position").value.trim();
     const department = Number(document.getElementById("emp-department").value);
     const hireDate = document.getElementById("hire-date").value;
+    const id = "EMP-" + (window.db.employees.length + 1).toString().padStart(4, "0");
+
 
     if(!name || !email || !position || !department || !hireDate)
     {
         alert("Please fill in all fields.");
         return;
     }
+    showToast("Employee added successfully!", "success");
 
     window.db.employees.push({
+        employeeId: id,
         name,
-        employeeId: Date.now(),
         userEmail: email,
         position,
         deptId: department,
         hireDate
     });
-    
+
     saveToStorage();
     renderEmployeesTable();
-
     document.getElementById("employee-form").style.display = "none";
 }
-document.getElementById("emp-save-btn").onclick = addEmployee;
 
 let editingEmpIndex = null;
 
@@ -574,10 +654,12 @@ function editEmployee(i)
     editingEmpIndex = i;
     const emp = window.db.employees[i];
 
-    loadDepartmentOptions();
+    getDepartmentOptions();
 
     document.getElementById("emp-form-title").textContent = "Edit Employee";
+    document.getElementById("emp-save-btn").textContent = "Update Employee";
 
+    document.getElementById("emp-id").value = "Auto Generated";
     document.getElementById("emp-name").value = emp.name;
     document.getElementById("emp-email").value = emp.userEmail;
     document.getElementById("emp-position").value = emp.position;
@@ -586,8 +668,8 @@ function editEmployee(i)
 
     document.getElementById("employee-form").style.display = "block";
     document.getElementById("emp-save-btn").onclick = updateEmployee;
+    showToast("Employee Updated Successfully", "success");
 }
-
 
 function updateEmployee()
 {
@@ -604,28 +686,237 @@ function updateEmployee()
 
     document.getElementById("employee-form").style.display = "none";
     document.getElementById("emp-save-btn").onclick = addEmployee;
-    document.getElementById("emp-form-title").textContent = "Add Employee";
 }
 
 function deleteEmployee(i)
 {
     if(!confirm("Are you sure you want to delete this employee?"))
         return;
+    showToast("Employee deleted successfully!", "success");
 
     window.db.employees.splice(i, 1);
     saveToStorage();
     renderEmployeesTable();
 }
 
+
+// ===============================
+//      Phase 7: User Requests
+// ===============================
+function renderRequestsTable()
+{
+    const tbody = document.querySelector("#requests-table tbody");
+    tbody.innerHTML = "";
+
+    let list = [];
+
+    if(currentUser.role === "admin")
+    {
+        list = window.db.requests;
+    }
+    else
+    {
+        list = window.db.requests.filter(r => r.userEmail === currentUser.email);
+    }
+
+    list.forEach((req) => {
+        const realIndex = window.db.requests.indexOf(req);
+        const items = req.items.map(i => `• ${i.qty} x ${i.name}`).join("<br>");
+
+        let statusBadge = "";
+
+        if(req.status === "Approved")
+            statusBadge = `<span class="badge bg-success">Approved</span>`;
+        else if(req.status === "Rejected")
+            statusBadge = `<span class="badge bg-danger">Rejected</span>`;
+
+        else
+            statusBadge = `<span class="badge bg-warning text-dark">Pending</span>`;
+
+        
+        let actionButtons = "";
+
+        if(currentUser.role === "admin")
+        {
+            if(req.status === "Pending")
+            {
+                actionButtons = `
+                    <button class="btn btn-sm btn-outline-success" onclick="approveRequest(${realIndex})">Approve</button>
+                    <button class="btn btn-sm btn-outline-danger" onclick="rejectRequest(${realIndex})">Reject</button>
+                `;
+            }
+            else
+            {
+                actionButtons = "Processed";
+            }
+        }
+
+            tbody.innerHTML += `
+                <tr>
+                    <td>REQ-${(realIndex + 1).toString().padStart(4, "0")}</td>
+                    <td>${new Date(req.dateFiled).toISOString().split("T")[0]}</td>
+                    <td>${req.userEmail}</td>
+                    <td>${items}</td>
+                    <td>${statusBadge}</td>
+                    <td>${actionButtons}</td>
+                </tr>
+            `;
+    });
+}
+
+document.addEventListener("click", function(e){
+
+    if(e.target.id === "submit-request-btn")
+    {
+
+        const type = document.getElementById("req-type").value.trim();
+        const itemRows = document.querySelectorAll(".item-row");
+
+        const items = [];
+
+        itemRows.forEach(row => {
+
+            const name = row.querySelector(".req-item-name").value.trim();
+            const qty = Number(row.querySelector(".req-qty").value);
+
+            if(name && qty > 0)
+            {
+                items.push({
+                    name: name,
+                    qty: qty
+                });
+            }
+
+        });
+
+        if(!type || items.length === 0)
+        {
+            alert("Please add at least one item.");
+            return;
+        }
+
+        window.db.requests.push({
+            type,
+            items,
+            userEmail: currentUser.email,
+            status: "Pending",
+            dateFiled: new Date().toISOString()
+        });
+
+        saveToStorage();
+        renderRequestsTable();
+
+        showToast("Request submitted successfully!", "success");
+
+        const modal = bootstrap.Modal.getInstance(document.getElementById("req-form"));
+        modal.hide();
+
+        document.getElementById("req-type").value = "";
+    }
+
+});
+
+function approveRequest(i)
+{
+    if (!confirm("Approve this request?"))
+        return;
+
+    window.db.requests[i].status = "Approved";
+    saveToStorage();
+    renderRequestsTable();
+}
+
+function rejectRequest(i)
+{
+    const reason = prompt ("Reason for rejection:");
+    if (reason === null)
+        return;
+
+    window.db.requests[i].status = "Rejected";
+    window.db.requests[i].adminNote = reason;
+    saveToStorage();
+    renderRequestsTable();
+}
+
+document.addEventListener("click", function(e){
+    if(e.target.id === "add-item-btn")
+    {
+
+        const container = document.getElementById("request-items");
+
+        const row = document.createElement("div");
+        row.className = "d-flex gap-2 mb-2 item-row";
+
+        row.innerHTML = `
+            <input type="text" class="form-control req-item-name" placeholder="Item name">
+            <input type="number" class="form-control req-qty" min="1" placeholder="Qty" value="1">
+            <button type="button" class="btn btn-outline-danger remove-item">×</button>
+        `;
+
+        container.appendChild(row);
+    }
+});
+
+document.addEventListener("click", function(e){
+
+    if(e.target.classList.contains("remove-item"))
+    {
+        e.target.parentElement.remove();
+    }
+
+});
+
+function showToast(message, type = "info")
+{
+    const toast = document.createElement("div");
+
+    toast.className = `alert alert-${type}`;
+    toast.style.position = "fixed";
+    toast.style.top = "20px";
+    toast.style.zIndex = 9999;
+    
+    toast.innerText = message;
+
+    document.body.appendChild(toast);
+
+    setTimeout(() => {
+        toast.remove();
+    }, 3000);
+}
+
 function saveToStorage()
 {
-    localStorage.setItem(STORAGE_KEY, JSON.stringify(window.db));
-    localStorage.setItem("db_accounts", JSON.stringify(window.db.accounts));
-    localStorage.setItem("db_departments", JSON.stringify(window.db.departments));
-    localStorage.setItem("db_employees", JSON.stringify(window.db.employees));
+    localStorage.setItem("db", JSON.stringify(window.db));
+}
+
+function restoreAuthSession()
+{
+    const token = localStorage.getItem("auth_token");
+    if (!token)
+        return;
+
+    const acc = window.db.accounts.find(a => a.email === token);
+
+    if(acc)
+    {
+        currentUser = acc;
+        setAuthState(true, acc);
+        updateNavbarUser();
+    }
+}
+
+function updateNavbarUser()
+{
+    const dropdown = document.getElementById("nav-username")
+
+    if(!dropdown || !currentUser)
+        return;
+
+    dropdown.textContent = currentUser.firstName;
 }
 
 loadFromStorage();
+restoreAuthSession();
 
 window.addEventListener("hashchange", handleRouting);
 

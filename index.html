@@ -34,30 +34,25 @@
                 If logged in
                 ===========-->
                 <li class="nav-item dropdown role-logged-in">
-                    <a class="nav-link dropdown-toggle" href="#" data-bs-toggle="dropdown"></a>
+                    <a id="nav-username" class="nav-link dropdown-toggle" href="#" data-bs-toggle="dropdown"></a>
                     <ul class="dropdown-menu dropdown-menu-end">
                         <li><a class="dropdown-item" href="#/profile">Profile</a></li>
                         <li><a class="dropdown-item" href="#/requests">My Request</a></li>
+                        <li class="role-admin">
+                            <a class="dropdown-item" href="#/employees">Employees</a>
+                        </li>
+                        <li class="role-admin">
+                            <a class="dropdown-item" href="#/departments">Departments</a>
+                        </li>
+                        <li class="role-admin">
+                            <a class="dropdown-item" href="#/accounts">Accounts</a>
+                        </li>
                         <li><a class="dropdown-item" href="#/logout">Logout</a></li>
                     </ul>
-                </li>
-                
-                <!--========
-                    ADMIN
-                =========-->
-                <li class="nav-item role-admin">
-                    <a class="nav-link" href="#/employees">Employees</a>
-                </li>
-                <li class="nav-item role-admin">
-                    <a class="nav-link" href="#/departments">Departments</a>
-                </li>
-                <li class="nav-item role-admin">
-                    <a class="nav-link" href="#/accounts">Accounts</a>
                 </li>
             </ul>
         </div>
     </nav>
-
 
     <!--=====================
         Page Sections
@@ -72,10 +67,10 @@
                 <li>Role-based UI (Admin/User)</li>
                 <li>CRUD for Employees, Departments, Requests</li>
             </ul>
-            <div class="warning">
-            <p>⚠️<b>Note:</b> All data is stored in <span style="color:#ea3838">localStorage</span>. Referesh to reset.</p>
+            <div class="alert-border-0 d-flex align-items-center p-2" style="background-color: #e0f7ff">
+            <p>⚠️<b>Note:</b> All data is stored in <span style="color:#d63384; background: none; font-weight: bold">localStorage</span>. Referesh to reset.</p>
             </div>
-            <br><a class="btn btn-primary" href="#/login">Get Started➜</a>
+            <br><a class="btn btn-primary" href="#/register">Get Started➜</a>
         </section>
 
         <section id="register-page" class="page">
@@ -102,14 +97,13 @@
         <section id="verify-email-page" class="page">
             <h1>Verify Your Email</h1>
             <p>For demo purposes, click below to simulate verification: </p>
-            <p id="verify-msg"></p>
+            <p id="verify-msg" class="alert alert-success d-flex align-items-center mb-4"></p>
             <button id="verify-btn" class="btn btn-success">✅Simulate Email Verfication</button>
             <a class="btn btn-outline-secondary" href="#/login">Go to Login</a>
         </section>
 
         <section id="login-page" class="page">
             <h1>Login</h1>
-
             <form id="login-form">
                 <label><b>Email</b></label>
                 <input type="email" id="login-email" class="form-control mb-2" required>
@@ -139,7 +133,7 @@
         <section id="employees-page" class="page">
             <div class="d-flex justify-content-between align-items-center mb-3">
                 <h1>Employees</h1>
-                <a id="add-employee-btn" class="btn btn-success">+ Add Employee</a>
+                <button id="add-employee-btn" class="btn btn-success">+ Add Employee</button>
             </div>
 
             <table class="table" id="employees-table">
@@ -152,17 +146,18 @@
                         <th>Actions</th>
                     </tr>
                 </thead>
-                <tbody></tbody>
+                <tbody class="employee-list-body"></tbody>
             </table>
 
-            <div class="card">
+            <div class="card" id="employee-form" style="display:none;">
                 <div class="card-header">
-                  <h6>Add/Edit Employee</h6>
+                  <h6 id="emp-form-title">Add/Edit Employee</h6>
                 </div>
                 <div class="card-body">
-                    <div class="card-body">
                         <label>Employee ID</label>
-                        <input id="emp-id" class="form-control mb-2">
+                        <input id="emp-id" disabled placeholder="Auto Generated" class="form-control mb-2">
+                        <label>Employee Name</label>
+                        <input id="emp-name" class="form-control mb-2">
                         <label>User Email</label>
                         <input type="text" id="emp-email" class="form-control mb-2">
                         <label>Position</label>
@@ -175,10 +170,9 @@
                         <select id="emp-department" class="form-control mb-2"></select>
                         <label>Hire Date</label>
                         <input type="date" id="hire-date" class="form-control mb-2">
-                    </div>
 
-                    <button id="emp-save-btn" type="submit" class="btn btn-primary">Save</button>
-                    <button type="submit" class="btn btn-secondary" onclick="navigateTo('#/employees')">Cancel</button>
+                    <button id="emp-save-btn" type="button" class="btn btn-primary">Save</button>
+                    <button id="emp-cancel-btn" type="button" class="btn btn-secondary" onclick="navigateTo('#/employees')">Cancel</button>
                 </div>
             </div>
         </section>
@@ -196,6 +190,7 @@
                 <input id="dept-desc" class="form-control mb-2" placeholder="Description">
 
                 <button class="btn btn-success" id="save-department-btn">Save</button>
+                <button class="btn btn-secondary" id="cancel-department-btn">Cancel</button>
 
             </div>
 
@@ -230,7 +225,7 @@
                 <tbody></tbody>
             </table>
 
-            <div class="card">
+            <div class="card" id="account-form" style="display:none;">
                 <div class="card-header">
                     <h6>Add/Edit Account</h6>
                 </div>
@@ -255,7 +250,7 @@
                     </div>
                     
                     <button type="submit" class="btn btn-primary">Save</button>
-                    <a class="btn btn-secondary" href="/#accounts">Cancel</a>
+                    <button class="btn btn-secondary" onclick="hideAccountForm()">Cancel</button>
                 </div>
             </div>
         </section>
@@ -265,6 +260,20 @@
                 <h1>My Requests</h1>
                 <button type="button" class="btn btn-success" data-bs-toggle="modal" data-bs-target="#req-form">+ New Request</button>
             </div>
+
+            <table class="table" id="requests-table">
+                <thead>
+                    <tr>
+                        <th>Request ID</th>
+                        <th>Date</th>
+                        <th>Requester</th>
+                        <th>Items</th>
+                        <th>Status</th>
+                        <th>Actions</th>
+                    </tr>
+                </thead>
+                <tbody></tbody>
+            </table>
 
             <div class="d-flex justify-content-between align-items-end mb-3">
                 <a class="btn btn-success" data-bs-toggle="modal" data-bs-target="#req-form">Create One</a>
@@ -279,14 +288,17 @@
                         </div>
                         <div class="modal-body">
                             <label>Type</label>
-                            <input type="text" id="equipment" class="form-control mb-2">
+                            <input type="text" id="req-type" class="form-control mb-2">
                             <label>Items</label>
-                            <div class="input-group">
-                                <input type="text" placeholder="Item Name" class="form-control mb-2">
-                                <input type="number" min="1" class="form-control mb-2">
+                           <div id="request-items">
+                                <div class="d-flex gap-2 mb-2 item-row">
+                                    <input type="text" class="form-control req-item-name" placeholder="Item name">
+                                    <input type="number" class="form-control req-qty" min="1" value="1" placeholder="Qty">
+                                    <button type="button" id="add-item-btn" class="btn  btn-outline-secondary">+</button>
+                                </div>
                             </div>
-
-                            <button type="button" class="btn btn-primary">Submit Request</button>
+                            <br>
+                            <button type="button" id="submit-request-btn" class="btn btn-primary">Submit Request</button>
                         </div>
                     </div>
                 </div>
