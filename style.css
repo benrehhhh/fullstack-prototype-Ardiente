@@ -21,3 +21,9 @@ body.authenticated .role-logged-out{
 body.is-admin .role-admin{
     display: block;
 }
+
+.top-right-element {
+    position: absolute;
+    top: 0;
+    right: 0;
+}

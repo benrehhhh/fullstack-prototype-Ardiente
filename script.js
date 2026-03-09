@@ -44,13 +44,24 @@ function handleRouting(){
 
     // Redirects non-user away
     const protectedRoutes = ["#/profile", "#/requests"];
-    if (!currentUser && protectedRoutes.includes(hash)){
+    const adminRoutes = ["#/employees", "#/accounts", "#/departments"];
+    
+    if (!currentUser && protectedRoutes.includes(hash))
+    {
+        showToast("Please Login to access this page.", "warning");
         navigateTo("#/login");
+        return;
     }
 
-    // Admin Pages
-    const adminRoutes = ["#/employees", "#/accounts", "#/departments"];
+    if(!currentUser && adminRoutes.includes(hash))
+    {
+        showToast("Access denied. Admins only.", "danger");
+        navigateTo("#/login");
+        return;
+    }
+
     if (currentUser && currentUser.role.toLowerCase() !== "admin" && adminRoutes.includes(hash)) {
+        showToast("Access denied. Admins only.", "danger");
         navigateTo("#/");
     }
 
@@ -133,6 +144,7 @@ document.getElementById("verify-btn").addEventListener("click", function(){
     if (acc)
     {
         acc.verified = true;
+        showToast("Email verified successfully! You can now log in.", "success");
         saveToStorage();
         localStorage.removeItem("unverified_email");
         navigateTo("#/login");
@@ -217,8 +229,8 @@ function setAuthState(isAuth, user = null){
 document.querySelector("a[href='#/logout']").addEventListener("click", function(){
         localStorage.removeItem("auth_token");
         setAuthState(false);
-        navigateTo("#/");
         showToast("Logged out successfully!", "info");
+        navigateTo("#/");
     });
 
 // =============================================
@@ -359,7 +371,15 @@ function saveAccount()
         alert("Complete all fields");
         return;
     }
-    showToast("Account updated successfully!", "success");
+
+    if(window.editingAccount === null)
+    {
+        showToast("Account created successfully!", "success");
+    }
+    else
+    {
+        showToast("Account updated successfully!", "success");
+    }
 
 
     if(window.editingAccount === null)
@@ -505,8 +525,15 @@ document.getElementById("save-department-btn").addEventListener("click", () => {
         alert("Department name is required.");
         return;
     }
-    showToast("Department added successfully!", "success");
 
+    if(editingDeptIndex === null)
+    {
+        showToast("Department added successfully!", "success");
+    }
+    else
+    {
+        showToast("Department updated successfully!", "success");
+    }
 
     if(editingDeptIndex === null)
     {
@@ -668,7 +695,6 @@ function editEmployee(i)
 
     document.getElementById("employee-form").style.display = "block";
     document.getElementById("emp-save-btn").onclick = updateEmployee;
-    showToast("Employee Updated Successfully", "success");
 }
 
 function updateEmployee()
@@ -682,6 +708,7 @@ function updateEmployee()
     emp.hireDate = document.getElementById("hire-date").value;
 
     saveToStorage();
+    showToast("Employee updated successfully!", "success");
     renderEmployeesTable();
 
     document.getElementById("employee-form").style.display = "none";
@@ -705,23 +732,42 @@ function deleteEmployee(i)
 // ===============================
 function renderRequestsTable()
 {
+    console.log("Current user:", currentUser);
+    console.log("All requests:", window.db.requests);
     const tbody = document.querySelector("#requests-table tbody");
     tbody.innerHTML = "";
 
+    if(!currentUser) return;
+
     let list = [];
 
-    if(currentUser.role === "admin")
+    if(currentUser && currentUser.role.toLowerCase() === "admin")
     {
+        document.querySelector("#requests-page h1").textContent = "All Requests";
         list = window.db.requests;
     }
     else
     {
+        document.querySelector("#requests-page h1").textContent = "My Requests";
         list = window.db.requests.filter(r => r.userEmail === currentUser.email);
+    }
+
+    if(list.length === 0)
+    {
+        tbody.innerHTML = 
+        `<tr>
+            <td colspan="6" class="text-center text-muted">
+            No requests found. Click <b>New Request</b> to create one.
+            </td>
+        </tr>`;
+        return;
     }
 
     list.forEach((req) => {
         const realIndex = window.db.requests.indexOf(req);
-        const items = req.items.map(i => `• ${i.qty} x ${i.name}`).join("<br>");
+        const items = (req.items || [])
+            .map(i => `• ${i.qty} x ${i.name}`)
+            .join("<br>") || "—";
 
         let statusBadge = "";
 
@@ -736,7 +782,7 @@ function renderRequestsTable()
         
         let actionButtons = "";
 
-        if(currentUser.role === "admin")
+        if(currentUser && currentUser.role.toLowerCase() === "admin")
         {
             if(req.status === "Pending")
             {
@@ -749,6 +795,16 @@ function renderRequestsTable()
             {
                 actionButtons = "Processed";
             }
+        }
+        else if(req.userEmail === currentUser.email)
+        {
+            actionButtons = `
+                <button class="btn btn-sm btn-outline-danger" onclick="deleteRequest(${realIndex})">Delete</button>
+            `;
+        }
+        else
+        {
+            actionButtons = "";
         }
 
             tbody.innerHTML += `
@@ -818,24 +874,36 @@ document.addEventListener("click", function(e){
 
 function approveRequest(i)
 {
-    if (!confirm("Approve this request?"))
+    if (!confirm("Are you sure you want to approve this request?"))
         return;
 
     window.db.requests[i].status = "Approved";
+
+    showToast("Request approved successfully.", "success");
     saveToStorage();
     renderRequestsTable();
 }
 
 function rejectRequest(i)
 {
-    const reason = prompt ("Reason for rejection:");
-    if (reason === null)
+    if(!confirm("Are you sure you want to reject this request?"))
         return;
 
     window.db.requests[i].status = "Rejected";
-    window.db.requests[i].adminNote = reason;
     saveToStorage();
     renderRequestsTable();
+    showToast("Request rejected!", "danger");
+}
+
+function deleteRequest(i)
+{
+    if(!confirm("Are you sure you want to delete this request?"))
+        return;
+
+    window.db.requests.splice(i, 1);
+    saveToStorage();
+    renderRequestsTable();
+    showToast("Request deleted successfully!", "success");
 }
 
 document.addEventListener("click", function(e){
@@ -854,6 +922,7 @@ document.addEventListener("click", function(e){
         `;
 
         container.appendChild(row);
+        showToast("Item added!", "info");
     }
 });
 
@@ -862,6 +931,7 @@ document.addEventListener("click", function(e){
     if(e.target.classList.contains("remove-item"))
     {
         e.target.parentElement.remove();
+        showToast("Item removed!", "warning");
     }
 
 });
@@ -872,7 +942,8 @@ function showToast(message, type = "info")
 
     toast.className = `alert alert-${type}`;
     toast.style.position = "fixed";
-    toast.style.top = "20px";
+    toast.style.bottom = "20px";
+    toast.style.right = "20px";
     toast.style.zIndex = 9999;
     
     toast.innerText = message;
@@ -902,7 +973,13 @@ function restoreAuthSession()
         currentUser = acc;
         setAuthState(true, acc);
         updateNavbarUser();
+
+        if(window.location.hash === "#/requests")
+        {
+            renderRequestsTable();
+        }
     }
+
 }
 
 function updateNavbarUser()
